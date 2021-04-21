@@ -17,11 +17,15 @@ public class Buttons{
     Stage stage = null;
     Boolean addOnClick = true;
     Animator animator;
-    DataSet d = null;
+    DataSet d_1 = null;
+    DataSet d_2 = null;
+    DataSet d_3 = null;
 
-    public Buttons(Stage stage, DataSet d){
+    public Buttons(Stage stage, DataSet d1,DataSet d2,DataSet d3){
     	this.stage=stage;
-    	this.d = d;
+    	this.d_1 = d1;
+      this.d_2 = d2;
+      this.d_3 = d3;
     }
 
     public void setAnimator(Animator animator) {
@@ -89,8 +93,8 @@ public class Buttons{
 
     public String getTextOutput() {
         String output = "DatasetStart\r\n";
-        for(Vector v : d.vList) {
-            output += v.x + "\r\n" + v.y + "\r\n";
+        for(Vector v : d_1.vList) {
+            output += v._vector[0] + "\r\n" + v._vector[1] + "\r\n";
         }
         output += "DatasetEnd";
         return output;

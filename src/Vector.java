@@ -1,9 +1,9 @@
 import java.util.*;
 public class Vector{
-	public int dimension;
-	public double[] vector;
-	public double x;
-	public double y;
+	public int _dimension;
+	public double[] _vector;
+	//public double _x;
+	//public double _y;
 	//constructor
 	/*public Vector(int dim){
 		this.dimension = dim;
@@ -15,25 +15,25 @@ public class Vector{
 		}
 	}*/
 	public Vector(double x, double y){
-		this.dimension = 2;
-		this.vector = new double[2];
-		vector[0] = x;
-		vector[1] = y;
-		this.x = x;
-		this.y = y;
+		this._dimension = 2;
+		this._vector = new double[2];
+		this._vector[0] = x;
+		this._vector[1] = y;
+		//this._x = _vector[0];
+		//this._y = _vector[1];
 	}
 
 	public double get_X(){
-		return vector[0];
+		return _vector[0];
 	}
 
 	public double get_Y(){
-		return vector[1];
+		return _vector[1];
 	}
 
 	public String toString(){
 		String vec_str = "(";
-		double[] vec = this.vector;
+		double[] vec = this._vector;
 		for (int i = 0; i<vec.length ; ++i) {
 			if (i<vec.length-1) vec_str += vec[i] + ", ";
 			else vec_str += vec[i];
@@ -42,19 +42,19 @@ public class Vector{
 		return vec_str;
 	}
 	public void add(Vector b){
-		for (int i=0;i<b.vector.length;++i) {
-			vector[i]+=b.vector[i];
+		for (int i=0;i<b._vector.length;++i) {
+			_vector[i]+=b._vector[i];
 		}
 	}
-	public boolean compare(Vector b){
-		for (int i=0;i<b.vector.length;++i) {
-			if (vector[i]!=b.vector[i]) return false;
+	public boolean _compare(Vector b){
+		for (int i=0;i<b._vector.length;++i) {
+			if (_vector[i]!=b._vector[i]) return false;
 		}
 		return true;
 	}
 	public void scalar(double a){
-		for (int i=0;i<vector.length;++i) {
-			vector[i]*=a;
+		for (int i=0;i<_vector.length;++i) {
+			_vector[i]*=a;
 		}
 	}
 }

@@ -29,11 +29,13 @@ import java.util.Set;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import java.net.MalformedURLException;
+
  public class Main extends Application{
 
 	HBox baseLayer = new HBox();
 	VBox verticalBox = new VBox();
-	HBox horizontalBox = new HBox();
+	HBox horizontalBox_1 = new HBox();
+	HBox horizontalBox_2 = new HBox();
 	Pane coordinateSystem = new Pane();
 	Pane layersContainer = new Pane();
 	Pane pointsLayer = new Pane();
@@ -42,8 +44,10 @@ import java.net.MalformedURLException;
 	VBox lengthinformationBox = new VBox();
 	VBox animationinformationBox = new VBox();
 	Scene scene = new Scene(baseLayer, 900, 627);
-	DataSet dataset = new DataSet();
 	int cluster_size = 3;
+	DataSet dataset_1 = new DataSet(cluster_size);
+	DataSet dataset_2 = new DataSet(cluster_size);
+	DataSet dataset_3 = new DataSet(cluster_size);
   	List<Vector> centers_not_cluster = new ArrayList<Vector>(cluster_size);
 	List<Vector> centers = new ArrayList<>();
 	double eps=0.0000000000000000000000000000001;
@@ -63,7 +67,8 @@ import java.net.MalformedURLException;
 		coordinateSystem.getChildren().add(clusterLayer);
 		coordinateSystem.getChildren().add(layersContainer);
     	verticalBox.getChildren().add(coordinateSystem);
-    	verticalBox.getChildren().add(horizontalBox);
+    	verticalBox.getChildren().add(horizontalBox_1);
+    	verticalBox.getChildren().add(horizontalBox_2);
     	baseLayer.getChildren().add(verticalBox);
 		informationBox.getChildren().add(lengthinformationBox);
 	    informationBox.getChildren().add(animationinformationBox);
@@ -109,8 +114,10 @@ import java.net.MalformedURLException;
 		}
 		else {point.setRadius(4.0);}
 
-		int position = dataset.vList.size();
-		dataset.addVectors(new Vector(x,y));
+		int position = dataset_1.vList.size();
+		dataset_1.addVectors(new Vector(x,y));
+		dataset_2.addVectors(new Vector(x,y));
+		dataset_3.addVectors(new Vector(x,y));
 		point.setOnMouseDragged(new EventHandler<MouseEvent>() {
 		  public void handle(MouseEvent event) {
 		    double deltaX = Math.abs(point.getCenterX() - event.getSceneX());
@@ -118,8 +125,8 @@ import java.net.MalformedURLException;
 		    if(deltaX + deltaY > 2){
 		      point.setCenterX(event.getSceneX());
 		      point.setCenterY(event.getSceneY());
-		      dataset.vList.get(position).x = event.getSceneX();
-		      dataset.vList.get(position).y = event.getSceneY();
+		      dataset_1.vList.get(position)._vector[0] = event.getSceneX();
+		      dataset_1.vList.get(position)._vector[1] = event.getSceneY();
 		      //updateClustering();
 		    }
 		  }
@@ -129,12 +136,20 @@ import java.net.MalformedURLException;
 			addClusterPoint(x,y);
 		}*/
 	}
-	public void addClusterPoint(double x, double y) {
+	public void addClusterPoint(double x, double y, int algo_number) {
 		Circle point = new Circle();
 		point.setCenterX(x);
 		point.setCenterY(y);
 		point.setRadius(80.0);
-		point.setFill(Color.color(1,0,0,0.2));
+		if (algo_number == 0) {
+			point.setFill(Color.color(1,0,0,0.2));
+		}
+		else if (algo_number == 1) {
+			point.setFill(Color.color(0,1,0,0.2));
+		}
+		else if (algo_number == 2) {
+			point.setFill(Color.color(0,0,1,0.2));
+		}
 		clusterLayer.getChildren().add(point);
 	}
 
@@ -149,8 +164,8 @@ import java.net.MalformedURLException;
 
 
   public void addButtons(Stage stage){
-    buttons = new Buttons(stage, dataset);
-    buttons.addButton(horizontalBox, "Choose File...", new EventHandler<ActionEvent>() {
+    buttons = new Buttons(stage, dataset_1, dataset_2, dataset_3);
+    buttons.addButton(horizontalBox_1, "Choose File...", new EventHandler<ActionEvent>() {
       public void handle(ActionEvent event) {
         FileChooser fileChooser = new FileChooser();
         File file = fileChooser.showOpenDialog(stage);
@@ -159,35 +174,37 @@ import java.net.MalformedURLException;
           pointsLayer.getChildren().clear();
           clusterLayer.getChildren().clear();
           setupPointsLayer();
-          dataset.clear();
+          dataset_1.clear();
+          dataset_2.clear();
+          dataset_3.clear();
           List<Vector> newVertices = loader.getVectors();
           for(Vector v : newVertices) {
-            addPoint(v.x,v.y, false);
+            addPoint(v._vector[0],v._vector[1], false);
           }
           //dataset.calculateClustering(centers);
           //updateClustering();
         }
       }
     });
-    buttons.addSaveFileButton(horizontalBox);
-    //buttons.addOnClickToggleButton(horizontalBox);
-    //buttons.addAnimationStepButton(horizontalBox);
-    buttons.addButton(horizontalBox, "Random Set", new EventHandler<ActionEvent>() {
+    buttons.addSaveFileButton(horizontalBox_1);
+    //buttons.addOnClickToggleButton(horizontalBox_1);
+    //buttons.addAnimationStepButton(horizontalBox_1);
+    buttons.addButton(horizontalBox_1, "Random Set", new EventHandler<ActionEvent>() {
       public void handle(ActionEvent event) {
         if(generationCount < 50){
 			generationCount++;
 			pointsLayer.getChildren().clear();
 			setupPointsLayer();
-			dataset.clear();
+			dataset_1.clear();
+			dataset_2.clear();
+			dataset_3.clear();
 			Random rand = new Random();
-
-			System.out.println("centers_not_cluster size = "+centers_not_cluster.size());
 		while(centers_not_cluster.size()<cluster_size){
 
           	centers_not_cluster.add(new Vector(250 * rand.nextGaussian()+450,100 * rand.nextGaussian()+300));
           }
           for (int i = 0; i < centers_not_cluster.size(); i++) {
-          	addPoint(centers_not_cluster.get(i).x, centers_not_cluster.get(i).y, false);
+          	addPoint(centers_not_cluster.get(i)._vector[0], centers_not_cluster.get(i)._vector[1], false);
           }
           for (int j = 0; j < centers_not_cluster.size(); j++) {
 	          for(int i = 0; i < 500; i++){
@@ -196,8 +213,8 @@ import java.net.MalformedURLException;
 	      			Random r_2 = new Random();
 	      			double x_1 = r_1.nextGaussian()*50;
 	      			double x_2 = r_2.nextGaussian()*50;
-	      			double x = x_1+centers_not_cluster.get(j).x;
-	      			double y = x_2+centers_not_cluster.get(j).y;
+	      			double x = x_1+centers_not_cluster.get(j)._vector[0];
+	      			double y = x_2+centers_not_cluster.get(j)._vector[1];
 	              	addPoint(x, y,false);
 	            }
 	        }
@@ -205,29 +222,73 @@ import java.net.MalformedURLException;
       }
     });
 
-    buttons.addButton(horizontalBox, "Clear", new EventHandler<ActionEvent>() {
+
+    buttons.addButton(horizontalBox_1, "fkM data", new EventHandler<ActionEvent>() {
+      public void handle(ActionEvent event) {
+      	//initializeCenters();
+      	clusterLayer.getChildren().clear();
+        dataset_1.calculate_Fuzzy_c_means_Clustering(eps, true, 2);
+        for (int i = 0; i < dataset_1.centers.size(); ++i) {
+        	double x = dataset_1.centers.get(i)._vector[0];
+        	double y = dataset_1.centers.get(i)._vector[1];
+        	addClusterPoint(x,y,0);
+		    //lengthinformationBox.getChildren().add(algoName);
+		    //lengthinformationBox.getChildren().add(euclidRatio);
+        }
+        Text zielfunktion_fuzzy = new Text("Fuzzy-c-Means: Zielfunktion of Fuzzy-c-Means Clustering (centers sampled from dataset): " + dataset_1._zielfunktion_fuzzy);
+        Text zielfunktion = new Text("Fuzzy-c-Means: Zielfunktion of kMeans Clustering (centers sampled from dataset): " + dataset_2._zielfunktion);
+
+        lengthinformationBox.getChildren().add(zielfunktion_fuzzy);
+        lengthinformationBox.getChildren().add(zielfunktion);
+      }
+    });
+    buttons.addButton(horizontalBox_2, "fkM random", new EventHandler<ActionEvent>() {
+      public void handle(ActionEvent event) {
+      	//initializeCenters();
+      	clusterLayer.getChildren().clear();
+        dataset_2.calculate_Fuzzy_c_means_Clustering(eps, false, 2);
+        for (int i = 0; i < dataset_2.centers.size(); ++i) {
+        	double x = dataset_2.centers.get(i)._vector[0];
+        	double y = dataset_2.centers.get(i)._vector[1];
+        	addClusterPoint(x,y,1);
+		    
+		    //lengthinformationBox.getChildren().add(euclidRatio);
+        }
+        Text zielfunktion_fuzzy = new Text("Fuzzy-c-Means: Zielfunktion of Fuzzy-c-Means Clustering (centers sampled randomly): " + dataset_2._zielfunktion_fuzzy);
+        Text zielfunktion = new Text("Fuzzy-c-Means: Zielfunktion of kMeans Clustering (centers sampled randomly): " + dataset_2._zielfunktion);
+
+        lengthinformationBox.getChildren().add(zielfunktion_fuzzy);
+        lengthinformationBox.getChildren().add(zielfunktion);
+      }
+    });
+    buttons.addButton(horizontalBox_2, "kM from data", new EventHandler<ActionEvent>() {
+      public void handle(ActionEvent event) {
+      	//initializeCenters();
+      	//clusterLayer.getChildren().clear();
+        dataset_3.build_kmeans_Clusters(true);
+        for (int i = 0; i < dataset_3.centers.size(); ++i) {
+        	double x = dataset_3.centers.get(i)._vector[0];
+        	double y = dataset_3.centers.get(i)._vector[1];
+        	addClusterPoint(x,y,2);
+
+        }
+		Text zielfunktion = new Text("kMeans: Zielfunktion of kMeans Clustering (centers sampled randomly): " + dataset_2._zielfunktion);
+
+        lengthinformationBox.getChildren().add(zielfunktion);
+        //updateClustering();
+      }
+    });
+    buttons.addButton(horizontalBox_2, "Clear", new EventHandler<ActionEvent>() {
       public void handle(ActionEvent event) {
         pointsLayer.getChildren().clear();
         lengthinformationBox.getChildren().clear();
         animationinformationBox.getChildren().clear();
         pointsLayer.getChildren().clear();
         clusterLayer.getChildren().clear();
-        dataset.clear();
+        dataset_1.clear();
+        dataset_2.clear();
+        dataset_3.clear();
         setupPointsLayer();
-      }
-    });
-    buttons.addButton(horizontalBox, "Find Clustering", new EventHandler<ActionEvent>() {
-      public void handle(ActionEvent event) {
-      	//initializeCenters();
-      	//pointsLayer.getChildren().clear();
-        dataset.calculateClustering(eps);
-        for (int i = 0; i < dataset.centers.size(); ++i) {
-        	System.out.println(dataset.centers.get(i).toString());
-        	double x = dataset.centers.get(i).vector[0];
-        	double y = dataset.centers.get(i).vector[1];
-        	addClusterPoint(x,y);
-        }
-        //updateClustering();
       }
     });
   }

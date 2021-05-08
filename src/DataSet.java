@@ -211,7 +211,7 @@ public class DataSet{
             }
             ++iteration;
         }
-        calculate_zielfunktion_for_kmeans(k_means);
+//        calculate_zielfunktion_for_kmeans(k_means);
     }
 
     public void calculate_zielfunktion_for_kmeans(Matrix belong){

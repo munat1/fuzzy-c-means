@@ -15,13 +15,14 @@ public class DataSet{
 	public List<Vector> centers;
 	public double _zielfunktion_fuzzy;
 	public double _zielfunktion;
-
+	public List<Vector> ground_truth;
 
 
 	public DataSet(int center_amount, int dimension){
 		this._center_amount = center_amount;
 		this._dimension = dimension;
 		this.centers = new ArrayList<>(center_amount);
+		this.ground_truth= new ArrayList<>(center_amount);
 	}
 
 	public DataSet(DataSet d){
@@ -259,6 +260,7 @@ System.out.println("debug");
 					data[j] = 250*rand.nextGaussian()+300;	
 				}
 				randomized_centers.add(new Vector(data));
+				ground_truth.add(new Vector(data));
 				this.vList.add(new Vector(data));
 			}
 			for (int j = 0; j < randomized_centers.size(); j++) {

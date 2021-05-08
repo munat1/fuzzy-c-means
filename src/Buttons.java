@@ -16,7 +16,6 @@ import javafx.scene.layout.VBox;
 public class Buttons{
     Stage stage = null;
     Boolean addOnClick = true;
-    Animator animator;
     DataSet d_1 = null;
     DataSet d_2 = null;
     DataSet d_3 = null;
@@ -28,9 +27,6 @@ public class Buttons{
       this.d_3 = d3;
     }
 
-    public void setAnimator(Animator animator) {
-        this.animator = animator;
-    }
 
     public Boolean addOnClick() {
         return true;
@@ -46,7 +42,6 @@ public class Buttons{
         Button btn = new Button("Animate");
         btn.setOnAction(new EventHandler<ActionEvent>() {
           public void handle(ActionEvent event) {
-            animator.drawNext();
           }
         });
         box.getChildren().add(btn);

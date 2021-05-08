@@ -31,23 +31,8 @@ import javafx.scene.image.ImageView;
 import java.net.MalformedURLException;
 
 public class Main{
-
-	HBox baseLayer = new HBox();
-	VBox verticalBox = new VBox();
-	HBox horizontalBox_1 = new HBox();
-	HBox horizontalBox_2 = new HBox();
-	Pane coordinateSystem = new Pane();
-	Pane layersContainer = new Pane();
-	Pane pointsLayer = new Pane();
-	Pane clusterLayer = new Pane();
-	VBox informationBox = new VBox();
-	VBox lengthinformationBox = new VBox();
-	//VBox animationinformationBox = new VBox();
-	Scene scene = new Scene(baseLayer, 900, 627);
 	//List<Vector> randomized_centers;
 	List<Vector> centers = new ArrayList<>();
-	Buttons buttons;
-	int generationCount = 0;
 	/*int cluster_size;
 	int dimension;*/
 	//DataSet dataset;
@@ -63,6 +48,10 @@ public class Main{
 		}*/
 		dataset.build_kmeans_Clusters(true);
 
+		System.out.println("ground truth centers:");
+		for (int i = 0; i<dataset.ground_truth.size(); i++){
+			System.out.println(dataset.ground_truth.get(i).toString());
+		}
 		System.out.println("centers from kmeans:");
 		for (int i = 0; i<dataset.centers.size(); i++){
 			System.out.println(dataset.centers.get(i).toString());

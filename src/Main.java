@@ -45,9 +45,10 @@ import java.net.MalformedURLException;
 	VBox animationinformationBox = new VBox();
 	Scene scene = new Scene(baseLayer, 900, 627);
 	int cluster_size = 3;
-	DataSet dataset_1 = new DataSet(cluster_size);
-	DataSet dataset_2 = new DataSet(cluster_size);
-	DataSet dataset_3 = new DataSet(cluster_size);
+	int dim = 2;
+	DataSet dataset_1 = new DataSet(cluster_size,dim);
+	DataSet dataset_2 = new DataSet(cluster_size,dim);
+	DataSet dataset_3 = new DataSet(cluster_size,dim);
   	List<Vector> centers_not_cluster = new ArrayList<Vector>(cluster_size);
 	List<Vector> centers = new ArrayList<>();
 	double eps=0.0000000000000000000000000000001;
@@ -61,18 +62,18 @@ import java.net.MalformedURLException;
 		stage.setTitle("Clustering");
 		addButtons(stage);
 		setupPointsLayer();
-		//setupClusterLayer();
+		setupClusterLayer();
 		stage.setScene(scene);
 		coordinateSystem.getChildren().add(pointsLayer);
 		coordinateSystem.getChildren().add(clusterLayer);
 		coordinateSystem.getChildren().add(layersContainer);
-    	verticalBox.getChildren().add(coordinateSystem);
-    	verticalBox.getChildren().add(horizontalBox_1);
-    	verticalBox.getChildren().add(horizontalBox_2);
-    	baseLayer.getChildren().add(verticalBox);
+		verticalBox.getChildren().add(coordinateSystem);
+		verticalBox.getChildren().add(horizontalBox_1);
+		verticalBox.getChildren().add(horizontalBox_2);
+		baseLayer.getChildren().add(verticalBox);
 		informationBox.getChildren().add(lengthinformationBox);
-	    informationBox.getChildren().add(animationinformationBox);
-	    baseLayer.getChildren().add(informationBox);
+		    informationBox.getChildren().add(animationinformationBox);
+		    baseLayer.getChildren().add(informationBox);
 		stage.show();
 	}
 
@@ -92,7 +93,7 @@ import java.net.MalformedURLException;
 		});
 		pointsLayer.getChildren().add(r);
 	}
-	/*public void setupClusterLayer(){
+	public void setupClusterLayer(){
 		Rectangle r = new Rectangle();
 		r.setX(0);
 		r.setY(0);
@@ -100,7 +101,7 @@ import java.net.MalformedURLException;
 		r.setHeight(600);
 		r.setFill(Color.color(0,0,0,0));
 		clusterLayer.getChildren().add(r);
-	}*/
+	}
 
 	public void addPoint(double x, double y, boolean center) {
 		Circle point = new Circle();
@@ -108,16 +109,16 @@ import java.net.MalformedURLException;
 		point.setCenterY(y);
 		
 		if (center) {
-			point.setRadius(80.0);
-			point.setFill(Color.color(1,0,0,0.2));
+			point.setRadius(4.0);
+			point.setFill(Color.color(1,0,0,1));
 
 		}
 		else {point.setRadius(4.0);}
 
 		int position = dataset_1.vList.size();
-		dataset_1.addVectors(new Vector(x,y));
-		dataset_2.addVectors(new Vector(x,y));
-		dataset_3.addVectors(new Vector(x,y));
+		//dataset_1.addVectors(new Vector(x,y));
+		//dataset_2.addVectors(new Vector(x,y));
+		//dataset_3.addVectors(new Vector(x,y));
 		point.setOnMouseDragged(new EventHandler<MouseEvent>() {
 		  public void handle(MouseEvent event) {
 		    double deltaX = Math.abs(point.getCenterX() - event.getSceneX());
@@ -136,19 +137,19 @@ import java.net.MalformedURLException;
 			addClusterPoint(x,y);
 		}*/
 	}
-	public void addClusterPoint(double x, double y, int algo_number) {
+	public void addClusterPoint(double x, double y, int algo_number, double col) {
 		Circle point = new Circle();
 		point.setCenterX(x);
 		point.setCenterY(y);
-		point.setRadius(80.0);
+		point.setRadius(4.0);
 		if (algo_number == 0) {
-			point.setFill(Color.color(1,0,0,0.2));
+			point.setFill(Color.color(1-col,1,col,0.7));
 		}
 		else if (algo_number == 1) {
-			point.setFill(Color.color(0,1,0,0.2));
+			point.setFill(Color.color(0,0,0,0.7));
 		}
 		else if (algo_number == 2) {
-			point.setFill(Color.color(0,0,1,0.2));
+			point.setFill(Color.color(1,0,0,0.7));
 		}
 		clusterLayer.getChildren().add(point);
 	}
@@ -191,7 +192,7 @@ import java.net.MalformedURLException;
     //buttons.addAnimationStepButton(horizontalBox_1);
     buttons.addButton(horizontalBox_1, "Random Set", new EventHandler<ActionEvent>() {
       public void handle(ActionEvent event) {
-        if(generationCount < 50){
+        /*if(generationCount < 50){
 			generationCount++;
 			pointsLayer.getChildren().clear();
 			setupPointsLayer();
@@ -218,64 +219,73 @@ import java.net.MalformedURLException;
 	              	addPoint(x, y,false);
 	            }
 	        }
-          }
-      }
-    });
-
-
-    buttons.addButton(horizontalBox_1, "fkM data", new EventHandler<ActionEvent>() {
-      public void handle(ActionEvent event) {
-      	//initializeCenters();
+          }*/
+	pointsLayer.getChildren().clear();
       	clusterLayer.getChildren().clear();
-        dataset_1.calculate_Fuzzy_c_means_Clustering(eps, true, 2);
-        for (int i = 0; i < dataset_1.centers.size(); ++i) {
-        	double x = dataset_1.centers.get(i)._vector[0];
-        	double y = dataset_1.centers.get(i)._vector[1];
-        	addClusterPoint(x,y,0);
-		    //lengthinformationBox.getChildren().add(algoName);
-		    //lengthinformationBox.getChildren().add(euclidRatio);
-        }
-        Text zielfunktion_fuzzy = new Text("Fuzzy-c-Means: Zielfunktion of Fuzzy-c-Means Clustering (centers sampled from dataset): " + dataset_1._zielfunktion_fuzzy);
-        Text zielfunktion = new Text("Fuzzy-c-Means: Zielfunktion of kMeans Clustering (centers sampled from dataset): " + dataset_2._zielfunktion);
-
-        lengthinformationBox.getChildren().add(zielfunktion_fuzzy);
-        lengthinformationBox.getChildren().add(zielfunktion);
+	setupPointsLayer();
+	dataset_1.clear();
+	dataset_2.clear();
+	dataset_1.generateRandomPoints();
+	dataset_2 = new DataSet(dataset_1);
+	for (int i = 0; i<dataset_1.vList.size(); i++){
+		addPoint(dataset_1.vList.get(i)._vector[0], dataset_1.vList.get(i)._vector[1], false);	
+	}
+	for (int i = 0; i<dataset_1.ground_truth.size();i++){
+		addClusterPoint(dataset_1.ground_truth.get(i)._vector[0], dataset_1.ground_truth.get(i)._vector[1],2,1.0);
+}
       }
     });
-    buttons.addButton(horizontalBox_2, "fkM random", new EventHandler<ActionEvent>() {
+
+
+    buttons.addButton(horizontalBox_1, "fkM", new EventHandler<ActionEvent>() {
       public void handle(ActionEvent event) {
-      	//initializeCenters();
-      	clusterLayer.getChildren().clear();
-        dataset_2.calculate_Fuzzy_c_means_Clustering(eps, false, 2);
-        for (int i = 0; i < dataset_2.centers.size(); ++i) {
-        	double x = dataset_2.centers.get(i)._vector[0];
-        	double y = dataset_2.centers.get(i)._vector[1];
-        	addClusterPoint(x,y,1);
-		    
-		    //lengthinformationBox.getChildren().add(euclidRatio);
-        }
-        Text zielfunktion_fuzzy = new Text("Fuzzy-c-Means: Zielfunktion of Fuzzy-c-Means Clustering (centers sampled randomly): " + dataset_2._zielfunktion_fuzzy);
-        Text zielfunktion = new Text("Fuzzy-c-Means: Zielfunktion of kMeans Clustering (centers sampled randomly): " + dataset_2._zielfunktion);
-
-        lengthinformationBox.getChildren().add(zielfunktion_fuzzy);
-        lengthinformationBox.getChildren().add(zielfunktion);
+      	//clusterLayer.getChildren().clear();
+	List<Double> m_values = new ArrayList<>();
+	m_values.add(0.5);
+	/*m_values.add(0.6);
+	m_values.add(0.7);
+	m_values.add(0.8);
+	m_values.add(0.9);*/
+	m_values.add(1.0);
+	/*m_values.add(1.1);
+	m_values.add(1.2);
+	m_values.add(1.3);
+	m_values.add(1.4);*/
+	m_values.add(1.5);
+	/*m_values.add(1.6);
+	m_values.add(1.7);
+	m_values.add(1.8);
+	m_values.add(1.9);*/
+	m_values.add(2.0);
+	/*m_values.add(2.1);
+	m_values.add(2.2);
+	m_values.add(2.3);
+	m_values.add(2.4);*/
+	m_values.add(2.5);
+	double colour =0; 
+	double iter = (double) 1/(m_values.size()+1);
+	for (int j=0; j<m_values.size(); j++){
+		dataset_1.calculate_Fuzzy_c_means_Clustering(eps, true, m_values.get(j));
+		for (int i = 0; i < dataset_1.centers.size(); ++i) {
+			double x = dataset_1.centers.get(i)._vector[0];
+			double y = dataset_1.centers.get(i)._vector[1];
+			addClusterPoint(x,y,0,colour);
+		}
+		colour +=iter;
+	}
       }
     });
-    buttons.addButton(horizontalBox_2, "kM from data", new EventHandler<ActionEvent>() {
+    buttons.addButton(horizontalBox_2, "kM", new EventHandler<ActionEvent>() {
       public void handle(ActionEvent event) {
       	//initializeCenters();
       	//clusterLayer.getChildren().clear();
-        dataset_3.build_kmeans_Clusters(true);
-        for (int i = 0; i < dataset_3.centers.size(); ++i) {
-        	double x = dataset_3.centers.get(i)._vector[0];
-        	double y = dataset_3.centers.get(i)._vector[1];
-        	addClusterPoint(x,y,2);
+        dataset_2.build_kmeans_Clusters(true);
+        for (int i = 0; i < dataset_2.centers.size(); ++i) {
+        	double x = dataset_2.centers.get(i)._vector[0];
+        	double y = dataset_2.centers.get(i)._vector[1];
+        	addClusterPoint(x,y,1,1.0);
 
         }
-		Text zielfunktion = new Text("kMeans: Zielfunktion of kMeans Clustering (centers sampled randomly): " + dataset_2._zielfunktion);
-
-        lengthinformationBox.getChildren().add(zielfunktion);
-        //updateClustering();
       }
     });
     buttons.addButton(horizontalBox_2, "Clear", new EventHandler<ActionEvent>() {
@@ -289,6 +299,16 @@ import java.net.MalformedURLException;
         dataset_2.clear();
         dataset_3.clear();
         setupPointsLayer();
+      }
+    });
+
+    buttons.addButton(horizontalBox_2, "show centers", new EventHandler<ActionEvent>() {
+      public void handle(ActionEvent event) {
+        pointsLayer.getChildren().clear();
+        lengthinformationBox.getChildren().clear();
+        animationinformationBox.getChildren().clear();
+        pointsLayer.getChildren().clear();
+        setupClusterLayer();
       }
     });
   }

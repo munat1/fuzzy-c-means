@@ -15,8 +15,8 @@ public class Matrix{
         this.M = M;
         this.N = N;
         data = new double[N][M];
-        for (int i = 0; i<N; ++i) {
-            for (int j = 0; j<M; ++j) {
+        for (int i = 0; i<N; i++) {
+            for (int j = 0; j<M; j++) {
                 data[i][j] = 0;
             }
         }

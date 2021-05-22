@@ -1,4 +1,3 @@
 # fuzzy-c-means
 
-![dependency](/data_visualization/dimension:2;cluster_size2.pdf)
-Format: ![Alt Text](url)
+![dependency](https://github.com/munat1/fuzzy-c-means/blob/main/data_visualization/dimension:2%3Bcluster_size2.pdf)

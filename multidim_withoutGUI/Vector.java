@@ -2,18 +2,7 @@ import java.util.*;
 public class Vector{
 	public int _dimension;
 	public double[] _vector;
-	//public double _x;
-	//public double _y;
-	//constructor
-	/*public Vector(int dim){
-		this.dimension = dim;
-		this.vector = new double[dim];
-		for (int i=0; i<dim; ++i) {
-			//Random r = new Random();
-			//vector[i] = 700 * r.nextDouble();
-			vector[i] = 0;
-		}
-	}*/
+	
 	public Vector(int x, double y){
 		this._dimension = x;
 		this._vector = new double[x];
@@ -38,13 +27,12 @@ public class Vector{
 	}
 
 	public String toString(){
-		String vec_str = "(";
+		String vec_str = "";
 		double[] vec = this._vector;
 		for (int i = 0; i<vec.length ; i++) {
 			if (i<vec.length-1) vec_str += vec[i] + ", ";
 			else vec_str += vec[i];
 		}
-		vec_str += ")";
 		return vec_str;
 	}
 	public void add(Vector b){

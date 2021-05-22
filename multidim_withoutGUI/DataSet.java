@@ -16,6 +16,7 @@ public class DataSet{
 	public double _zielfunktion_fuzzy;
 	public double _zielfunktion;
 	public List<Vector> ground_truth;
+	public int iteration_count;
 
 
 	public DataSet(int center_amount, int dimension){
@@ -23,6 +24,7 @@ public class DataSet{
 		this._dimension = dimension;
 		this.centers = new ArrayList<>(center_amount);
 		this.ground_truth= new ArrayList<>(center_amount);
+		this.iteration_count = 0;
 	}
 
 	public DataSet(DataSet d){
@@ -31,6 +33,7 @@ public class DataSet{
 		this.centers = d.centers;
 		this.vList = d.vList;
 		this.V = d.V;
+		this.iteration_count = 0;
 	}
 
 
@@ -92,9 +95,10 @@ public class DataSet{
 	}
 
 
-	public double[][] _calculate_belongingMatrix(double m){
+	public Matrix _calculate_belongingMatrix(double m){
 		double[][] matr = new double[vList.size()][centers.size()];;
 		double tmp=0;
+        Matrix a = new Matrix(matr);
 		double pot = (double) -2/(m-1);
 		for (int i=0;i<vList.size();i++) {
 
@@ -111,11 +115,11 @@ public class DataSet{
 					}
 					tmp = Math.pow(eucDistance_squared(vList.get(i),centers.get(j)), pot)/tmp_1;
 				}
-				matr[i][j] = tmp;
+				a.data[i][j] = tmp;
 				tmp = 0;
 			}
 		}
-		return matr;
+		return a;
 	}
 
 
@@ -158,24 +162,35 @@ public class DataSet{
 	}
 
 	public void calculate_Fuzzy_c_means_Clustering(double eps, boolean dataset, double m){
+        iteration_count = 0;
 		centers.clear();
 		if (dataset) {
 			_generateRandomCenters_from_the_dataset(_center_amount);
 		}
 		else _generateRandomCenters_randomly(_center_amount);
-		Matrix tmp_1 = new Matrix(_calculate_belongingMatrix(m));
-		_updateCenters(tmp_1, m);
-		Matrix tmp_2 = new Matrix(_calculate_belongingMatrix(m));
-		int iteration = 1;
-		Matrix tmp_3 = new Matrix(tmp_2.data);
-		while(tmp_2._minus(tmp_1).norm()>eps && iteration < 1000){
-			tmp_1 = new Matrix(tmp_3.data);
-			_updateCenters(tmp_3, m);
-			tmp_2 = new Matrix(_calculate_belongingMatrix(m));
-			tmp_3 = new Matrix(tmp_2.data);
-			iteration++;
+		if (m==1.0){
+			build_kmeans_Clusters(dataset);
 		}
-		calculate_zielfunktion_for_Fuzzy_c_means(tmp_3, m);
+		else{
+			Matrix tmp_1 = new Matrix(_calculate_belongingMatrix(m));
+			_updateCenters(tmp_1, m);
+			//Matrix tmp_2 = new Matrix(_calculate_belongingMatrix(m));
+			//Matrix tmp_3 = new Matrix(tmp_2);
+            double n=Double.MAX_VALUE;
+			while(n>eps){// && iteration_count <10 ){
+                _updateCenters(tmp_1,m);
+                Matrix tmp_2 = new Matrix(_calculate_belongingMatrix(m));
+                Matrix tmp_3 = new Matrix(tmp_2);
+                tmp_2._minus(tmp_1);
+                n=tmp_2.norm();
+                tmp_1.override(tmp_3);
+                iteration_count++;
+                if (iteration_count==100001) {
+                    System.out.println("iteration count = 1000, stuck in a local minima");
+                    break;}
+			}
+			calculate_zielfunktion_for_Fuzzy_c_means(tmp_1, m);
+		}
 	}
 
 	public void calculate_zielfunktion_for_Fuzzy_c_means(Matrix belong, double m){
@@ -183,6 +198,27 @@ public class DataSet{
 			for (int j = 0; j < belong.M; j++) {
 				_zielfunktion_fuzzy += Math.pow(belong.data[i][j], m) * eucDistance_squared(vList.get(i),centers.get(j));
 			}
+		}
+	}
+
+	public void sort_centers(){
+		ArrayList<Vector> tmp = new ArrayList<>();
+		ArrayList<Integer> visited = new ArrayList<>();
+		for (int j = 0; j < ground_truth.size(); j++){
+			Vector min_distanced = new Vector(centers.get(0)._vector);
+			double min_distance = eucDistance(min_distanced, ground_truth.get(j));
+			for (int i = 0; i<centers.size(); i++){
+				double dist = eucDistance(centers.get(i), ground_truth.get(j));
+				if (!visited.contains(i) && min_distance>dist){
+					min_distanced = new Vector(centers.get(i)._vector);
+					min_distance = dist;
+					visited.add(i);
+				}
+			}
+			tmp.add(min_distanced);
+		}
+		for (int i = 0; i<tmp.size(); i++){
+			centers.set(i, tmp.get(i));
 		}
 	}
 
@@ -234,13 +270,10 @@ public class DataSet{
 				for (int i = 0; i<_dimension; i++){
 					centers.get(j)._vector[i] = new_center._vector[i]/size_of_cluster;
 				}
-				//centers.get(j)._vector[0] = new_center._vector[0]/size_of_cluster;
-				//centers.get(j)._vector[1] = new_center._vector[1]/size_of_cluster;
 			}
 			iteration++;
 		}
-System.out.println("debug");
-		//calculate_zielfunktion_for_kmeans(k_means);
+	sort_centers();
 	}
 
 	public void calculate_zielfunktion_for_kmeans(Matrix belong){
@@ -257,20 +290,20 @@ System.out.println("debug");
 			while(randomized_centers.size()<_center_amount){
 				double[] data = new double[_dimension];
 				for (int j = 0; j < _dimension; j++){
-					data[j] = 250*rand.nextGaussian()+300;	
+					data[j] = 2000*rand.nextGaussian()+1000;	
 				}
 				randomized_centers.add(new Vector(data));
 				ground_truth.add(new Vector(data));
 				this.vList.add(new Vector(data));
 			}
 			for (int j = 0; j < randomized_centers.size(); j++) {
-				for(int i = 0; i < 500; i++){
+				for(int i = 0; i < 501; i++){
 					double[] data = new double[_dimension];
 					for (int k = 0; k < _dimension; k++){
 					//Random[] r = new Random();
 						Random r = new Random();
-						if (i%2==0) data[k] = randomized_centers.get(j)._vector[k]+r.nextGaussian()*100;
-						else data[k] = randomized_centers.get(j)._vector[k]-r.nextGaussian()*100;
+						if (i%2==0) data[k] = randomized_centers.get(j)._vector[k]+r.nextGaussian()*1000;
+						else data[k] = randomized_centers.get(j)._vector[k]-r.nextGaussian()*1000;
 					}
 					this.vList.add(new Vector(data));
 				}

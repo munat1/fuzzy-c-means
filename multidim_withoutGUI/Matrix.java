@@ -22,6 +22,16 @@ public class Matrix{
         }
     }
 
+    public Matrix(Matrix A){
+        this.M=A.M;
+        this.N=A.N;
+        this.data=new double[N][M];
+        for (int i=0;i<A.N;i++){
+            for (int j=0;j<A.M;j++){
+                this.data[i][j]=A.data[i][j]; 
+            }
+        } 
+    }
 	public Matrix(double[][] data) {
     	N = data.length;
     	M = data[0].length;
@@ -34,29 +44,30 @@ public class Matrix{
     public void set_value(int i, int j, double value){
         this.data[i][j] = value;
     }
-
-    // return C = A - B
-    public Matrix _minus(Matrix B) {
-        Matrix A = this;
-        if (B.M != A.M || B.N != A.N) throw new RuntimeException("Illegal matrix dimensions.");
-        Matrix C = new Matrix(M, N);
+    public void override(Matrix A){
+        for (int i=0;i<A.N;i++){
+            for (int j=0;j<A.M;j++){
+                this.data[i][j]=A.data[i][j]; 
+            }
+        } 
+    }
+    public void _minus(Matrix B) {
+        if (B.M != M || B.N != N) throw new RuntimeException("Illegal matrix dimensions.");
         for (int i = 0; i < N; i++)
             for (int j = 0; j < M; j++)
-                C.data[i][j] = A.data[i][j] - B.data[i][j];
-        return C;
+                data[i][j] -= B.data[i][j];
     }
 
     public double norm(){
     	double norm = 0;
         for (int i = 0; i < N; i++){
             for (int j = 0; j < M; j++){
-            	norm+=Math.abs(data[i][j]);
+            	norm+=Math.pow(data[i][j],2);
         	}
     	}
-    	return norm;
+    	return Math.sqrt(norm);
     }
     public void printMatrix(){
-        System.out.println("U= "); 
         for (int i = 0; i < N; i++){
             System.out.print("("); 
             for (int j = 0; j < M; j++){
@@ -70,7 +81,7 @@ public class Matrix{
         for (int i = 0; i < N; i++){
             for (int j = 0; j < M; j++){
                     this.data[i][j] = 0;
-                }
             }
         }
+    }
 }
